@@ -22,11 +22,10 @@ jobs:
 
     - name: Log in to Aqua Registry
       run: |
-        echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com \
-          -u "${{ secrets.AQUA_USERNAME }}" --password-stdin
+        echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u ${{ secrets.AQUA_USERNAME }} --password-stdin || exit 1
 
     - name: Pull Aqua Scanner Image
-      run: docker pull registry.aquasec.com/scanner:latest-saas
+      run: docker pull registry.aquasec.com/scanner:latest-saas || exit 1
 
     - name: Run Aqua Scanner
       run: |
@@ -39,7 +38,7 @@ jobs:
           --password "${{ secrets.AQUA_PASS }}" \
           --show-negligible \
           --htmlfile /tmp/out.html \
-          --jsonfile /tmp/out.json
+          --jsonfile /tmp/out.json || exit 1
 
     - name: Upload Scan Reports
       uses: actions/upload-artifact@v4
