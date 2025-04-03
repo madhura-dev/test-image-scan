@@ -22,17 +22,21 @@ jobs:
 
     - name: Log in to Aqua Registry
       run: |
-        echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u ${{ secrets.AQUA_USERNAME }} --password-stdin || exit 1
+        echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u ${{ secrets.AQUA_USERNAME }} --password-stdin
 
     - name: Pull Aqua Scanner Image
-      run: docker pull registry.aquasec.com/scanner:latest-saas || exit 1
+      run: docker pull registry.aquasec.com/scanner:latest-saas
+
+    - name: Debug Aqua Scanner Command
+      run: |
+        echo "Scanning image: ${{ secrets.IMAGE_NAME }}"
+        echo "Aqua Host: ${{ secrets.AQUA_HOST }}"
 
     - name: Run Aqua Scanner
       run: |
         docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
-          registry.aquasec.com/scanner:latest-saas scan \
+          registry.aquasec.com/scanner:latest-saas scan "${{ secrets.IMAGE_NAME }}" \
           --registry "Docker Hub" \
-          --image-name "${{ secrets.IMAGE_NAME }}" \
           --host "${{ secrets.AQUA_HOST }}" \
           --user "${{ secrets.AQUA_U }}" \
           --password "${{ secrets.AQUA_PASS }}" \
