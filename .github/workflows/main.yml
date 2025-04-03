@@ -1,4 +1,4 @@
-name: Aqua Security Image Scan (CLI)
+name: Aqua Security Image Scan (Docker)
 
 on: [push]
 
@@ -10,20 +10,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download and Set Up Aqua Scanner CLI
+      - name: Run Aqua Scanner in Docker
         run: |
-          curl -L -o scanner https://download.aquasec.com/scannercli/latest/scannercli
-          chmod +x scanner
-
-      - name: Scan Image
-        run: |
-          ./scanner scan \
+          docker run --rm \
+            -e AQUA_USERNAME=${{ secrets.AQUA_USERNAME }} \
+            -e AQUA_PASSWORD=${{ secrets.AQUA_PASSWORD }} \
+            -e REGISTRY_URL=${{ secrets.REGISTRY_URL }} \
+            -e IMAGE_NAME=${{ secrets.IMAGE_NAME }} \
+            aquasec/scanner:latest scan \
             --username $AQUA_USERNAME \
             --password $AQUA_PASSWORD \
             --registry $REGISTRY_URL \
             --image $IMAGE_NAME
-        env:
-          AQUA_USERNAME: ${{ secrets.AQUA_USERNAME }}
-          AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
-          REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
-          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
