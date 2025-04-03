@@ -32,11 +32,13 @@ jobs:
             --registry "Docker Hub" \
             --image-name "${{ secrets.IMAGE_NAME }}" \
             --host "${{ secrets.AQUA_HOST }}" \
-            --user "${{ secrets.AQUA_U }}" \
-            --password "${{ secrets.AQUA_PASS }}" \
+            --user "${{ secrets.AQUA_USERNAME }}" \
+            --password "${{ secrets.AQUA_PASSWORD }}" \
             --show-negligible \
             --htmlfile /tmp/out.html \
-            --jsonfile /tmp/out.json > /dev/null
+            --jsonfile /tmp/out.json \
+            --build-job-name "$BUILD_JOB_NAME" \
+            --build-number "$BUILD_NUMBER" > /dev/null
 
       - name: Upload Scan Results
         uses: actions/upload-artifact@v4
