@@ -1,32 +1,32 @@
-name: Aqua Security Scan
+name: Aqua Security Image Scan
 
 on:
   push:
     branches:
-      - main
+      - main  # Runs when code is pushed to the main branch
   pull_request:
     branches:
-      - main
+      - main  # Runs on PRs targeting the main branch
 
 jobs:
-  security_scan:
+  scan:
     runs-on: ubuntu-latest
 
     env:
-      BUILD_JOB_NAME: MY_PROJECT_NAME
+      BUILD_JOB_NAME: "MY_PROJECT_NAME"
       BUILD_NUMBER: ${{ github.run_number }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug Secrets
-        run: echo "IMAGE_NAME=${{ secrets.IMAGE_NAME }}"
+      - name: Authenticate with Aqua Registry
+        run: echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u "${{ secrets.AQUA_USERNAME }}" --password-stdin
 
       - name: Pull Aqua Scanner Image
         run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      - name: Run Aqua Scanner
+      - name: Run Aqua Security Scan
         run: |
           docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
             -e BUILD_JOB_NAME=$BUILD_JOB_NAME \
@@ -41,14 +41,9 @@ jobs:
             --htmlfile /tmp/out.html \
             --jsonfile /tmp/out.json
 
-      - name: Upload Scan Report (HTML)
-        uses: actions/upload-artifact@v4
+      - name: Upload Scan Reports (Optional)
+        uses: actions/upload-artifact@v3
         with:
-          name: aqua-scan-report
-          path: /tmp/out.html
+          name: AquaScanReports
+          path: /tmp/out.*
 
-      - name: Upload Scan Report (JSON)
-        uses: actions/upload-artifact@v4
-        with:
-          name: aqua-scan-report-json
-          path: /tmp/out.json
