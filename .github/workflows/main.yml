@@ -1,6 +1,6 @@
-name: Aqua Security Image Scan (Docker)
+name: Aqua Security Image Scan
 
-on: [push]
+on: [push]  # Trigger on every push (modify as needed)
 
 jobs:
   aqua_scan:
@@ -10,15 +10,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Aqua Scanner in Docker
+      - name: Pull Aqua Scanner Image
+        run: docker pull registry.aquasec.com/scanner:latest-saas
+
+      - name: Scan Docker Image with Aqua
         run: |
-          docker run --rm \
-            -e AQUA_USERNAME=${{ secrets.AQUA_USERNAME }} \
-            -e AQUA_PASSWORD=${{ secrets.AQUA_PASSWORD }} \
-            -e REGISTRY_URL=${{ secrets.REGISTRY_URL }} \
-            -e IMAGE_NAME=${{ secrets.IMAGE_NAME }} \
-            aquasec/scanner:latest scan \
-            --username $AQUA_USERNAME \
+          docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
+            registry.aquasec.com/scanner:latest-saas scan \
+            --registry "Docker Hub" \
+            --image $IMAGE_NAME \
+            --host https://uniqueid.cloud.aquasec.com/ \
+            --user $AQUA_USERNAME \
             --password $AQUA_PASSWORD \
-            --registry $REGISTRY_URL \
-            --image $IMAGE_NAME
+            --show-negligible \
+            --htmlfile /tmp/out.html \
+            --jsonfile /tmp/out.json > /dev/null
+        env:
+          AQUA_USERNAME: ${{ secrets.AQUA_USERNAME }}
+          AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+
+      - name: Upload Scan Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: AquaScanResults
+          path: |
+            /tmp/out.html
+            /tmp/out.json
