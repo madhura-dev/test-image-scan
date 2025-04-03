@@ -22,7 +22,7 @@ jobs:
 
     - name: Log in to Aqua Registry
       run: |
-        echo "${{ secrets.AQUA_REGISTRY_PASSWORD }}" | docker login registry.aquasec.com -u ${{ secrets.AQUA_REGISTRY_USERNAME }} --password-stdin
+        echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u ${{ secrets.AQUA_USERNAME }} --password-stdin
 
     - name: Pull Aqua Scanner Image
       run: docker pull registry.aquasec.com/scanner:latest-saas
