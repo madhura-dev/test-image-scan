@@ -6,45 +6,38 @@ on:
       - main  # Runs scan on pushes to the main branch
 
 jobs:
-  aqua_scan:
+  build:
     runs-on: ubuntu-latest
 
+    env:
+      BUILD_JOB_NAME: MY_PROJECT_NAME
+      BUILD_NUMBER: ${{ github.run_number }}
+
     steps:
-      # 🔹 Checkout the repository
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🔹 Set environment variables for build job and number
-      - name: Set Environment Variables
-        run: |
-          echo "BUILD_JOB_NAME=MY_PROJECT_NAME" >> $GITHUB_ENV
-          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
-
-      # 🔹 Authenticate with Aqua Registry
       - name: Authenticate with Aqua Registry
         run: echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u "${{ secrets.AQUA_USERNAME }}" --password-stdin
 
-      # 🔹 Pull Aqua Scanner Image
       - name: Pull Aqua Scanner Image
         run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      # 🔹 Run Aqua Scanner with Build Job Name and Build Number
       - name: Run Aqua Scanner
         run: |
           docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
+            -e BUILD_JOB_NAME=$BUILD_JOB_NAME \
+            -e BUILD_NUMBER=$BUILD_NUMBER \
             registry.aquasec.com/scanner:latest-saas scan \
             --registry "Docker Hub" \
             --image-name "mongo:latest" \
             --host "https://uniqueid.cloud.aquasec.com/" \
-            --user "${{ secrets.AQUA_USERNAME }}" \
-            --password "${{ secrets.AQUA_PASSWORD }}" \
+            --user "${{ secrets.AQUA_U }}" \
+            --password "${{ secrets.AQUA_PASS }}" \
             --show-negligible \
             --htmlfile /tmp/out.html \
-            --jsonfile /tmp/out.json \
-            --build-job-name "$BUILD_JOB_NAME" \
-            --build-number "$BUILD_NUMBER" > /dev/null
+            --jsonfile /tmp/out.json > /dev/null
 
-      # 🔹 Upload Scan Results as Artifacts
       - name: Upload Scan Results
         uses: actions/upload-artifact@v4
         with:
