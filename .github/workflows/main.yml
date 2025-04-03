@@ -24,13 +24,10 @@ jobs:
       # 🔹 Scan Docker Image with Aqua (Fixed Command)
       - name: Scan Docker Image
         run: |
-          docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
-            registry.aquasec.com/scanner:latest-saas scan \
-            --registry "Docker Hub" \
-            ${{ secrets.IMAGE_NAME }} \
-            --host $AQUA_HOST \
-            --user $AQUA_USERNAME \
-            --password $AQUA_PASSWORD \
+          docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock  registry.aquasec.com/scanner:latest-saas scan --registry "Docker Hub" ${{ secrets.IMAGE_NAME }} \
+            --host ${{ secrets.AQUA_HOST }} \
+            --user ${{ secrets.AQUA_USERNAME }} \
+            --password ${{ secrets.AQUA_PASSWORD }} \
             --show-negligible \
             --htmlfile /tmp/out.html \
             --jsonfile /tmp/out.json > /dev/null
