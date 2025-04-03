@@ -1,19 +1,28 @@
 name: Aqua Security Image Scan
 
-on: [push]  # Trigger on every push (modify as needed)
+on:
+  push:
+    branches:
+      - main  # Runs scan on pushes to the main branch
 
 jobs:
   aqua_scan:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 🔹 Authenticate with Aqua Registry
+      - name: Authenticate with Aqua Registry
+        run: echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u "${{ secrets.AQUA_USERNAME }}" --password-stdin
+
+      # 🔹 Pull Aqua Scanner Image
       - name: Pull Aqua Scanner Image
         run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      - name: Scan Docker Image with Aqua
+      # 🔹 Scan Docker Image with Aqua
+      - name: Scan Docker Image
         run: |
           docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
             registry.aquasec.com/scanner:latest-saas scan \
@@ -30,7 +39,8 @@ jobs:
           AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
           IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
 
-      - name: Upload Scan Artifacts
+      # 🔹 Upload Scan Artifacts to GitHub
+      - name: Upload Scan Results
         uses: actions/upload-artifact@v4
         with:
           name: AquaScanResults
