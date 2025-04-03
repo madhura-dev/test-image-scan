@@ -21,13 +21,13 @@ jobs:
       - name: Pull Aqua Scanner Image
         run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      # 🔹 Scan Docker Image with Aqua
+      # 🔹 Scan Docker Image with Aqua (Fixed Command)
       - name: Scan Docker Image
         run: |
           docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
             registry.aquasec.com/scanner:latest-saas scan \
             --registry "Docker Hub" \
-            --image $IMAGE_NAME \
+            ${{ secrets.IMAGE_NAME }} \
             --host https://uniqueid.cloud.aquasec.com/ \
             --user $AQUA_USERNAME \
             --password $AQUA_PASSWORD \
@@ -39,7 +39,7 @@ jobs:
           AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
           IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
 
-      # 🔹 Upload Scan Artifacts to GitHub
+      # 🔹 Upload Scan Results to GitHub
       - name: Upload Scan Results
         uses: actions/upload-artifact@v4
         with:
