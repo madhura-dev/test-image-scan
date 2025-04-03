@@ -30,8 +30,8 @@ jobs:
             -e BUILD_NUMBER=$BUILD_NUMBER \
             registry.aquasec.com/scanner:latest-saas scan \
             --registry "Docker Hub" \
-            --image-name "mongo:latest" \
-            --host "https://uniqueid.cloud.aquasec.com/" \
+            --image-name "${{ secrets.IMAGE_NAME }}" \
+            --host "${{ secrets.AQUA_HOST }}" \
             --user "${{ secrets.AQUA_U }}" \
             --password "${{ secrets.AQUA_PASS }}" \
             --show-negligible \
