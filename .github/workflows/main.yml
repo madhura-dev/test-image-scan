@@ -14,10 +14,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 🔹 Set Build Variables for Aqua UI
-      - name: Set Build Variables
+      # 🔹 Set environment variables for build job and number
+      - name: Set Environment Variables
         run: |
-          echo "BUILD_JOB_NAME=GitHub Actions Scan" >> $GITHUB_ENV
+          echo "BUILD_JOB_NAME=MY_PROJECT_NAME" >> $GITHUB_ENV
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
       # 🔹 Authenticate with Aqua Registry
@@ -28,14 +28,14 @@ jobs:
       - name: Pull Aqua Scanner Image
         run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      # 🔹 Run Aqua Scanner
-      - name: Scan Docker Image with Aqua Scanner
+      # 🔹 Run Aqua Scanner with Build Job Name and Build Number
+      - name: Run Aqua Scanner
         run: |
           docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
             registry.aquasec.com/scanner:latest-saas scan \
             --registry "Docker Hub" \
-            --image-name "${{ secrets.IMAGE_NAME }}" \
-            --host "${{ secrets.AQUA_HOST }}" \
+            --image-name "mongo:latest" \
+            --host "https://uniqueid.cloud.aquasec.com/" \
             --user "${{ secrets.AQUA_USERNAME }}" \
             --password "${{ secrets.AQUA_PASSWORD }}" \
             --show-negligible \
