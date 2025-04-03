@@ -1,49 +1,47 @@
-name: Aqua Security Image Scan
+name: Aqua Image Scan
 
 on:
   push:
     branches:
-      - main  # Runs when code is pushed to the main branch
+      - main
   pull_request:
     branches:
-      - main  # Runs on PRs targeting the main branch
+      - main
 
 jobs:
   scan:
     runs-on: ubuntu-latest
 
     env:
-      BUILD_JOB_NAME: "MY_PROJECT_NAME"
+      BUILD_JOB_NAME: MY_PROJECT_NAME
       BUILD_NUMBER: ${{ github.run_number }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Authenticate with Aqua Registry
-        run: echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u "${{ secrets.AQUA_USERNAME }}" --password-stdin
+    - name: Log in to Aqua Registry
+      run: |
+        echo "${{ secrets.AQUA_REGISTRY_PASSWORD }}" | docker login registry.aquasec.com -u ${{ secrets.AQUA_REGISTRY_USERNAME }} --password-stdin
 
-      - name: Pull Aqua Scanner Image
-        run: docker pull registry.aquasec.com/scanner:latest-saas
+    - name: Pull Aqua Scanner Image
+      run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      - name: Run Aqua Security Scan
-        run: |
-          docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
-            -e BUILD_JOB_NAME=$BUILD_JOB_NAME \
-            -e BUILD_NUMBER=$BUILD_NUMBER \
-            registry.aquasec.com/scanner:latest-saas scan \
-            --registry "Docker Hub" \
-            --image-name "${{ secrets.IMAGE_NAME }}" \
-            --host "${{ secrets.AQUA_HOST }}" \
-            --user "${{ secrets.AQUA_U }}" \
-            --password "${{ secrets.AQUA_PASS }}" \
-            --show-negligible \
-            --htmlfile /tmp/out.html \
-            --jsonfile /tmp/out.json
+    - name: Run Aqua Scanner
+      run: |
+        docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
+          registry.aquasec.com/scanner:latest-saas scan \
+          --registry "Docker Hub" \
+          --image-name "${{ secrets.IMAGE_NAME }}" \
+          --host "${{ secrets.AQUA_HOST }}" \
+          --user "${{ secrets.AQUA_U }}" \
+          --password "${{ secrets.AQUA_PASS }}" \
+          --show-negligible \
+          --htmlfile /tmp/out.html \
+          --jsonfile /tmp/out.json
 
-      - name: Upload Scan Reports (Optional)
-        uses: actions/upload-artifact@v3
-        with:
-          name: AquaScanReports
-          path: /tmp/out.*
-
+    - name: Upload Scan Reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: AquaScanReports
+        path: /tmp/out.*
