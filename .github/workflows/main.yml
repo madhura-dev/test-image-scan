@@ -28,7 +28,7 @@ jobs:
             registry.aquasec.com/scanner:latest-saas scan \
             --registry "Docker Hub" \
             ${{ secrets.IMAGE_NAME }} \
-            --host https://uniqueid.cloud.aquasec.com/ \
+            --host $AQUA_HOST \
             --user $AQUA_USERNAME \
             --password $AQUA_PASSWORD \
             --show-negligible \
