@@ -14,6 +14,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 🔹 Set Build Variables for Aqua UI
+      - name: Set Build Variables
+        run: |
+          echo "BUILD_JOB_NAME=GitHub Actions Scan" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+
       # 🔹 Authenticate with Aqua Registry
       - name: Authenticate with Aqua Registry
         run: echo "${{ secrets.AQUA_PASSWORD }}" | docker login registry.aquasec.com -u "${{ secrets.AQUA_USERNAME }}" --password-stdin
@@ -22,8 +28,8 @@ jobs:
       - name: Pull Aqua Scanner Image
         run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      # 🔹 Scan Docker Image with Aqua Scanner
-      - name: Scan Docker Image
+      # 🔹 Run Aqua Scanner
+      - name: Scan Docker Image with Aqua Scanner
         run: |
           docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
             registry.aquasec.com/scanner:latest-saas scan \
@@ -35,8 +41,8 @@ jobs:
             --show-negligible \
             --htmlfile /tmp/out.html \
             --jsonfile /tmp/out.json \
-            --build-job-name "GitHub Actions Scan" \
-            --build-number "${{ github.run_number }}" > /dev/null
+            --build-job-name "$BUILD_JOB_NAME" \
+            --build-number "$BUILD_NUMBER" > /dev/null
 
       # 🔹 Upload Scan Results as Artifacts
       - name: Upload Scan Results
