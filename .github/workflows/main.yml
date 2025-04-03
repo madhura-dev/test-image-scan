@@ -1,1 +1,30 @@
+name: Aqua Security Image Scan (CLI)
+
+on: [push]
+
+jobs:
+  aqua_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download and Set Up Aqua Scanner CLI
+        run: |
+          curl -L -o scanner https://path-to-aqua-scanner-cli
+          chmod +x scanner
+
+      - name: Scan Image
+        run: |
+          ./scanner scan \
+            --username $AQUA_USERNAME \
+            --password $AQUA_PASSWORD \
+            --registry $REGISTRY_URL \
+            --image $IMAGE_NAME
+        env:
+          AQUA_USERNAME: ${{ secrets.AQUA_USERNAME }}
+          AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
+          REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
 
