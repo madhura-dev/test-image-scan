@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 🔹 Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -21,24 +22,23 @@ jobs:
       - name: Pull Aqua Scanner Image
         run: docker pull registry.aquasec.com/scanner:latest-saas
 
-      # 🔹 Scan Docker Image with Aqua (Fixed Command)
+      # 🔹 Scan Docker Image with Aqua Scanner
       - name: Scan Docker Image
         run: |
-          docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock  registry.aquasec.com/scanner:latest-saas scan --registry "Docker Hub" ${{ secrets.IMAGE_NAME }} \
-            --host ${{ secrets.AQUA_HOST }} \
-            --user ${{ secrets.AQUA_U }} \
-            --password ${{ secrets.AQUA_PASS }} \
+          docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
+            registry.aquasec.com/scanner:latest-saas scan \
+            --registry "Docker Hub" \
+            --image-name "${{ secrets.IMAGE_NAME }}" \
+            --host "${{ secrets.AQUA_HOST }}" \
+            --user "${{ secrets.AQUA_USERNAME }}" \
+            --password "${{ secrets.AQUA_PASSWORD }}" \
             --show-negligible \
             --htmlfile /tmp/out.html \
-            --jsonfile /tmp/out.json  \
-            -e BUILD_JON_NAME test \
-            -e BUILD_NUMBER ${{ github.run_number }}  > /dev/null 
-        env:
-          AQUA_USERNAME: ${{ secrets.AQUA_USERNAME }}
-          AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
-          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+            --jsonfile /tmp/out.json \
+            --build-job-name "GitHub Actions Scan" \
+            --build-number "${{ github.run_number }}" > /dev/null
 
-      # 🔹 Upload Scan Results to GitHub
+      # 🔹 Upload Scan Results as Artifacts
       - name: Upload Scan Results
         uses: actions/upload-artifact@v4
         with:
