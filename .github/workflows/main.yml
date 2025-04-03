@@ -33,8 +33,8 @@ jobs:
           -e BUILD_JOB_NAME="${{ env.BUILD_JOB_NAME }}" \
           -e BUILD_NUMBER="${{ env.BUILD_NUMBER }}" \
           registry.aquasec.com/scanner:latest-saas scan \
+          "${{ secrets.IMAGE_NAME }}" \
           --registry "Docker Hub" \
-          --image-name "${{ secrets.IMAGE_NAME }}" \
           --host "${{ secrets.AQUA_HOST }}" \
           --user "${{ secrets.AQUA_U }}" \
           --password "${{ secrets.AQUA_PASS }}" \
