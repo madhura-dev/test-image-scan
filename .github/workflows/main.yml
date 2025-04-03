@@ -12,7 +12,7 @@ jobs:
 
       - name: Download and Set Up Aqua Scanner CLI
         run: |
-          curl -L -o scanner https://path-to-aqua-scanner-cli
+          curl -L -o scanner https://download.aquasec.com/scannercli/latest/scannercli
           chmod +x scanner
 
       - name: Scan Image
@@ -27,4 +27,3 @@ jobs:
           AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
           REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
           IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
-
