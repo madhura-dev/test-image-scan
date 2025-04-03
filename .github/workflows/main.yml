@@ -30,7 +30,9 @@ jobs:
             --password ${{ secrets.AQUA_PASS }} \
             --show-negligible \
             --htmlfile /tmp/out.html \
-            --jsonfile /tmp/out.json > /dev/null
+            --jsonfile /tmp/out.json  \
+            --build-job-name test \
+            --build-number ${{ github.run_number }}  > /dev/null 
         env:
           AQUA_USERNAME: ${{ secrets.AQUA_USERNAME }}
           AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
