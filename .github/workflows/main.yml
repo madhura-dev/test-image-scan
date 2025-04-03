@@ -31,8 +31,8 @@ jobs:
             --show-negligible \
             --htmlfile /tmp/out.html \
             --jsonfile /tmp/out.json  \
-            --build-job-name test \
-            --build-number ${{ github.run_number }}  > /dev/null 
+            -e BUILD_JON_NAME test \
+            -e BUILD_NUMBER ${{ github.run_number }}  > /dev/null 
         env:
           AQUA_USERNAME: ${{ secrets.AQUA_USERNAME }}
           AQUA_PASSWORD: ${{ secrets.AQUA_PASSWORD }}
