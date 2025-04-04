@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      BUILD_JOB_NAME: MY_GITHUB_PROJECT
+      BUILD_JOB_NAME: MY_PROJECT_NAME
       BUILD_NUMBER: ${{ github.run_number }}
 
     steps:
@@ -29,7 +29,9 @@ jobs:
 
     - name: Run Aqua Scanner
       run: |
-        docker run --rm -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock \
+        docker run --rm \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v "${{ github.workspace }}:/workspace" \
           -e BUILD_JOB_NAME="${{ env.BUILD_JOB_NAME }}" \
           -e BUILD_NUMBER="${{ env.BUILD_NUMBER }}" \
           registry.aquasec.com/scanner:latest-saas scan \
@@ -39,11 +41,13 @@ jobs:
           --user "${{ secrets.AQUA_U }}" \
           --password "${{ secrets.AQUA_PASS }}" \
           --show-negligible \
-          --htmlfile /tmp/out.html \
-          --jsonfile /tmp/out.json || exit 1
+          --htmlfile /workspace/out.html \
+          --jsonfile /workspace/out.json || exit 1
 
     - name: Upload Scan Reports
       uses: actions/upload-artifact@v4
       with:
         name: AquaScanReports
-        path: /tmp/out.*
+        path: |
+          ${{ github.workspace }}/out.html
+          ${{ github.workspace }}/out.json
